@@ -1,112 +1,135 @@
-# Ayush Singh — Portfolio
+<div align="center">
 
-React/Vite portfolio with an Express API and Supabase database. It accesses Supabase directly through the official JavaScript client, without an ORM.
+# Ayush Singh — Developer Portfolio
 
-## Architecture
+### A terminal-inspired portfolio for a backend-focused software engineer
 
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=061014)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+
+**[Run locally](#run-locally)** · **[Report an issue](../../issues)**
+
+</div>
+
+---
+
+## About
+
+This is my personal developer portfolio: a responsive, terminal-inspired experience that presents my work in backend engineering, REST APIs, relational data design, and real-time systems.
+
+It is intentionally more than a static page. The contact form is backed by a protected Express API and persists messages in Supabase.
+
+> **Currently open to:** Backend / Software Development Engineer internships and full-time opportunities.
+
+## Highlights
+
+- CLI-inspired interface with a responsive, accessible design
+- Detailed project case studies with architecture and schema flows
+- Live contact endpoint with Zod validation, Helmet, rate limiting, and strict CORS
+- Supabase-backed PostgreSQL tables with Row Level Security enabled
+- Separate, deployment-ready frontend and backend services
+
+## Tech stack
+
+| Area | Technology |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS, Framer Motion |
+| Backend | Node.js, Express, Zod, Helmet, express-rate-limit |
+| Database | Supabase PostgreSQL |
+| Deployment | Vercel (frontend), Render (API) |
+
+## Project structure
+
+```text
+.
+├── frontend/                  # React + Vite client
+│   ├── src/components/        # Shared UI and terminal interface components
+│   ├── src/sections/          # Portfolio sections
+│   ├── src/pages/             # Project case-study routes
+│   └── src/lib/api.ts         # Contact API client
+│
+└── backend/                   # Express API
+    ├── src/controllers/       # HTTP handlers
+    ├── src/services/          # Supabase queries
+    ├── src/middleware/        # Validation, CORS, errors, rate limiting
+    └── supabase/schema.sql    # Database schema and starter data
 ```
-React + Vite (Vercel) → Express API (Render) → Supabase Postgres
-```
-
-The browser only talks to the Express API. It never receives a Supabase key.
-
-## 1. Create the Supabase database
-
-1. Create a project in [Supabase](https://supabase.com/dashboard).
-2. Open **SQL Editor** and run [`backend/supabase/schema.sql`](backend/supabase/schema.sql). This creates the tables and inserts the initial projects.
-3. In **Project Settings → API**, copy the project URL and a **Secret key**. The secret key is backend-only; never put it in a frontend `VITE_` variable.
-
-Row Level Security is enabled for both tables. Only the backend, using its server-side secret key, accesses them.
 
 ## Run locally
 
-Use Node.js 20 or newer.
+### 1. Create the Supabase tables
+
+Create a project in [Supabase](https://supabase.com/dashboard), open **SQL Editor**, and run:
+
+```text
+backend/supabase/schema.sql
+```
+
+This creates `projects` and `contact_messages`, enables Row Level Security, and adds starter project records.
+
+### 2. Start the API
 
 ```bash
-# terminal 1
 cd backend
 npm install
 cp .env.example .env
-# Add SUPABASE_URL and SUPABASE_SECRET_KEY to .env
 npm run dev
+```
 
-# terminal 2
+Add these values to `backend/.env`:
+
+```env
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SECRET_KEY=your_server_only_secret_key
+FRONTEND_URL=http://localhost:5173
+```
+
+### 3. Start the frontend
+
+```bash
 cd frontend
 npm install
 cp .env.example .env
 npm run dev
 ```
 
-Open `http://localhost:5173`. Vite proxies `/api` to `http://localhost:4000`. Verify the API at `http://localhost:4000/api/health` and submit the contact form to confirm a row appears in Supabase's `contact_messages` table.
+Visit `http://localhost:5173`. During local development, Vite forwards API calls to `http://localhost:4000`.
 
-## Environment variables
+## Deployment
 
-**backend/.env**
-
-| Variable | Required | Description |
+| Service | Platform | Key setting |
 | --- | --- | --- |
-| `SUPABASE_URL` | Yes | Project URL, e.g. `https://abc.supabase.co` |
-| `SUPABASE_SECRET_KEY` | Yes | Server-only Supabase Secret key |
-| `FRONTEND_URL` | Yes in production | Allowed frontend origin(s), comma-separated |
-| `PORT` | No | API port; defaults to `4000` |
-| `NODE_ENV` | No | `development` or `production` |
+| Frontend | Vercel | Root directory: `frontend` |
+| Backend | Render | Root directory: `backend`; start command: `npm start` |
+| Database | Supabase | Run `backend/supabase/schema.sql` once |
 
-**frontend/.env**
+On Render, set `NODE_ENV=production`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, and `FRONTEND_URL` (your exact Vercel domain).
 
-| Variable | Required in production | Description |
-| --- | --- | --- |
-| `VITE_API_BASE_URL` | Yes | Render API URL including `/api`, e.g. `https://your-api.onrender.com/api` |
+On Vercel, set:
 
-## Deploy the backend to Render
+```env
+VITE_API_BASE_URL=https://your-api.onrender.com
+```
 
-1. Push this repository to GitHub.
-2. In Render, choose **New → Web Service** and connect the repository.
-3. Set **Root Directory** to `backend`.
-4. Set **Build Command** to `npm install` and **Start Command** to `npm start`.
-5. Add these environment variables:
-
-   ```text
-   NODE_ENV=production
-   SUPABASE_URL=https://your-project-ref.supabase.co
-   SUPABASE_SECRET_KEY=your_server_only_secret_key
-   FRONTEND_URL=https://your-project.vercel.app
-   ```
-
-6. Deploy. Confirm `https://your-api.onrender.com/api/health` returns JSON.
-
-Do not set `PORT` in Render: Render supplies it automatically. If you use a custom Vercel domain later, add it to `FRONTEND_URL` separated by a comma.
-
-## Deploy the frontend to Vercel
-
-1. Import the same repository into Vercel.
-2. Set **Root Directory** to `frontend`; Vercel detects Vite automatically.
-3. Add the environment variable below for Production (and Preview if wanted):
-
-   ```text
-   VITE_API_BASE_URL=https://your-api.onrender.com/api
-   ```
-
-4. Deploy, then update Render's `FRONTEND_URL` with the exact Vercel origin. Redeploy Render if you changed it.
-
-The URL must have no trailing slash, and `VITE_API_BASE_URL` must include `/api`. Otherwise the contact form will fail with a CORS or 404 error.
+Never expose `SUPABASE_SECRET_KEY` in the frontend or commit it to GitHub.
 
 ## API
 
-| Method | Path | Description |
+| Method | Endpoint | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/health` | Health check for Render |
-| `GET` | `/api/projects` | List projects in Supabase |
-| `GET` | `/api/projects/:slug` | Get a project by slug |
-| `POST` | `/api/contact` | Validated, rate-limited contact submission |
+| `GET` | `/api/health` | Service health check |
+| `GET` | `/api/projects` | List portfolio projects |
+| `GET` | `/api/projects/:slug` | Retrieve a project |
+| `POST` | `/api/contact` | Submit a validated contact message |
 
-`POST /api/contact` accepts:
+## Contact
 
-```json
-{ "name": "Your name", "email": "you@example.com", "message": "At least 10 characters" }
-```
+Feel free to connect with me through the portfolio contact form or on [GitHub](https://github.com/singhayush48) and [LinkedIn](https://www.linkedin.com/in/ayushsingh5266/).
 
-## Security
+<div align="center">
 
-- The Supabase Secret key stays only in Render environment variables.
-- Helmet, strict CORS, rate limiting, and Zod validation protect the API.
-- Supabase Row Level Security prevents direct public access to these tables.
+Built with care by **Ayush Singh**.
+
+</div>
